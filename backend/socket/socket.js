@@ -25,57 +25,34 @@ io.on("connection", (socket) => {
 
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-    socket.on("outGoingVideoCall", async ({ userId, otherUserId, roomId }) => {
-        const recipientSocketId = userSocketMap[otherUserId];
+    socket.on("outGoingVoiceCall", async({caller, reciever}) => {
+        const remoteSocketId = userSocketMap[reciever]
 
-        if (recipientSocketId) {
-            const callingUser = await User.findById(userId);
-            io.to(recipientSocketId).emit("incomingVideoCall", {
-                caller: callingUser,
-                callerSocketId: socket.id,
-                roomId: roomId
-            });
-            // Join the room when initiating the call
-            socket.join(roomId);
-        } else {
-            socket.emit("callError", { message: "The user is not online" });
+        if (remoteSocketId) {
+            const localCaller = await User.findById(caller)
+                        
+            io.to(remoteSocketId).emit("incomingVoiceCall", {
+                caller: localCaller,
+                callerSocketId: socket.id
+            })
         }
-    });
+    })
 
-    socket.on("outGoingVoiceCall", async ({ userId, otherUserId, roomId }) => {
-        const recipientSocketId = userSocketMap[otherUserId];
+    socket.on("outGoingVideoCall", async({caller, reciever}) => {
+        const remoteSocketId = userSocketMap[reciever]
 
-        if (recipientSocketId) {
-            const callingUser = await User.findById(userId);
-            io.to(recipientSocketId).emit("incomingVoiceCall", {
-                caller: callingUser,
-                callerSocketId: socket.id,
-                roomId
-            });
-            // Join the room when initiating the call
-            socket.join(roomId);
-        } else {
-            socket.emit("callError", { message: "The user is not online" });
+        if (remoteSocketId) {
+            const localCaller = await User.findById(caller)
+
+            console.log(remoteSocketId);
+            console.log(localCaller);
+            
+            io.to(remoteSocketId).emit("incomingVideoCall", {
+                caller: localCaller,
+                callerSocketId: socket.id
+            })
         }
-    });
-
-    socket.on('acceptCall', ({ roomId, accepterId, accepterName }) => {
-        socket.join(roomId);
-        io.to(roomId).emit('callAccepted', { accepterId, accepterName, roomId });
-    });
-
-    socket.on('joinRoom', ({ roomId }) => {
-        socket.join(roomId);
-    });
-
-    socket.on("rejectCall", ({ callerSocketId }) => {        
-        io.to(callerSocketId).emit("callHasBeenRejected");
-    });
-
-    socket.on("callHasBeenCut", ({receiver}) => {        
-        const receiverSocketId = userSocketMap[receiver];
-        io.to(receiverSocketId).emit("callCutByCaller");
-    });
+    })
 
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
