@@ -59,11 +59,11 @@ export const SocketContextProvider = ({ children }) => {
     
     const makeVideoCall = (remoteId) => {
         const localId = authUser._id;
-                
+
         if (socket) {
             socket.emit("outGoingVideoCall", {
-                localId,
-                remoteId
+                caller: localId,
+                reciever: remoteId
             });
         }
     }

@@ -43,9 +43,6 @@ io.on("connection", (socket) => {
 
         if (remoteSocketId) {
             const localCaller = await User.findById(caller)
-
-            console.log(remoteSocketId);
-            console.log(localCaller);
             
             io.to(remoteSocketId).emit("incomingVideoCall", {
                 caller: localCaller,
