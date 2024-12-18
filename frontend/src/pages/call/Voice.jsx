@@ -17,18 +17,18 @@ function Voice() {
     }
 
     useEffect(() => {
-        socket.on("callHasBeenRejected", handleEndCall);
+        socket.on("callRejectedByReciever", handleEndCall);
 
         return () => {
-            socket.off("callHasBeenRejected", handleEndCall);
+            socket.off("callRejectedByReciever", handleEndCall);
         };
     }, [socket, navigate]);
 
     const handleEndCall = () => {
-        navigate('/');
         socket.emit("callHasBeenCut", {
             receiver: id
         })
+        navigate('/');
     };
 
     return (
