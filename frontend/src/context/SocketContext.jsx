@@ -33,7 +33,7 @@ export const SocketContextProvider = ({ children }) => {
                 setIncomingCall({ ...data, type: 'video' });
             });
 
-            socket.on("incomingVoiceCall", (data) => { 
+            socket.on("incomingVoiceCall", (data) => {
                 setIncomingCall({ ...data, type: 'voice' });
             });
 
@@ -46,9 +46,9 @@ export const SocketContextProvider = ({ children }) => {
         }
     }, [authUser]);
 
-    const makeVoiceCall = (remoteId) => {    
+    const makeVoiceCall = (remoteId) => {
         const localId = authUser._id;
-        
+
         if (socket) {
             socket.emit("outGoingVoiceCall", {
                 caller: localId,
@@ -56,7 +56,7 @@ export const SocketContextProvider = ({ children }) => {
             });
         }
     }
-    
+
     const makeVideoCall = (remoteId) => {
         const localId = authUser._id;
 
@@ -69,8 +69,8 @@ export const SocketContextProvider = ({ children }) => {
     }
 
     return (
-        <SocketContext.Provider value={{ 
-            socket, 
+        <SocketContext.Provider value={{
+            socket,
             onlineUsers,
             makeVoiceCall,
             makeVideoCall,
@@ -78,7 +78,7 @@ export const SocketContextProvider = ({ children }) => {
             // rejectCall
         }}>
             {children}
-        <Call />
+            <Call />
         </SocketContext.Provider>
     );
 };

@@ -10,7 +10,7 @@ const Call = () => {
       setIsCallerCalling(true);
     }
   }, [incomingCall]);
-  
+
   useEffect(() => {
     if (socket) {
       socket.on("callCutByCaller", () => {
@@ -22,15 +22,19 @@ const Call = () => {
       };
     }
   }, [socket])
-  
-  const handleReject = () =>{
-    const caller = incomingCall.caller._id
+
+  const handleReject = () => {
+    const id = incomingCall.caller._id
+
+    socket.emit("callRejected", {
+      callerId: id
+    })
   }
-    
+
   return (
     <>
       {
-         incomingCall && isCallerCalling && (
+        incomingCall && isCallerCalling && (
           <div className='absolute top-10 left-[45%]'>
             <div role="alert" className="alert">
               <div className='chat-image avatar'>
