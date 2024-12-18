@@ -51,6 +51,16 @@ io.on("connection", (socket) => {
         }
     })
 
+    socket.on("callHasBeenCut", ({receiver}) => {
+        console.log(receiver);
+        
+        const receiverSocketId = userSocketMap[receiver];
+    
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("callCutByCaller");
+        }
+    });
+
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
         delete userSocketMap[userId];

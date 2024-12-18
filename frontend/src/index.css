@@ -5,6 +5,7 @@
 body{
     /* background: linear-gradient(rgb(73, 217, 92), rgb(41, 95, 205)); */
     background-color: black;
+	font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 .shake {

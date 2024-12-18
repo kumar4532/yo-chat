@@ -25,10 +25,10 @@ function Video() {
     }, [socket, navigate]);
 
     const handleEndCall = () => {
-        navigate('/');
         socket.emit("callHasBeenCut", {
             receiver: id
         })
+        navigate('/');
     };
 
     return (

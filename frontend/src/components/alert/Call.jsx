@@ -1,19 +1,36 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSocketContext } from '../../context/SocketContext'
 
 const Call = () => {
-  const { incomingCall } = useSocketContext();
-  console.log(incomingCall);
-  
+  const { incomingCall, socket } = useSocketContext();
+  const [isCallerCalling, setIsCallerCalling] = useState(true)
 
-  const handleReject = () => {
-    console.log("This is shit");
+  useEffect(() => {
+    if (incomingCall) {
+      setIsCallerCalling(true);
+    }
+  }, [incomingCall]);
+  
+  useEffect(() => {
+    if (socket) {
+      socket.on("callCutByCaller", () => {
+        setIsCallerCalling(false);
+      });
+
+      return () => {
+        socket.off("callCutByCaller");
+      };
+    }
+  }, [socket])
+  
+  const handleReject = () =>{
+    const caller = incomingCall.caller._id
   }
     
   return (
     <>
       {
-         incomingCall && (
+         incomingCall && isCallerCalling && (
           <div className='absolute top-10 left-[45%]'>
             <div role="alert" className="alert">
               <div className='chat-image avatar'>
