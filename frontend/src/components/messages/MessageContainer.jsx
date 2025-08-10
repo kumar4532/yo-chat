@@ -28,6 +28,8 @@ function MessageContainer() {
       pic: profilePic
     });
 
+    fetchUserMedia();
+
     makeVoiceCall(_id);
     navigate(`/voice?${params.toString()}`);
   }
@@ -41,8 +43,28 @@ function MessageContainer() {
       pic: profilePic
     });
 
+    fetchUserMedia();
+
     makeVideoCall(_id);
     navigate(`/video?${params.toString()}`);
+  }
+
+  const fetchUserMedia = async() => {
+    return new Promise(async(resolve, reject)=>{
+      try{
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+          });   
+
+          console.log(stream);
+          
+          resolve();
+      }catch(err){
+          console.log(err);
+          reject()
+      }
+  })
   }
 
   return (

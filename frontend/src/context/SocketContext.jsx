@@ -68,14 +68,31 @@ export const SocketContextProvider = ({ children }) => {
         }
     }
 
+    const rejectCall = () => {
+        const id = incomingCall.caller._id
+
+        socket.emit("callRejected", {
+            callerId: id
+        })
+    }
+
+    const acceptCall = () => {
+        const id = incomingCall.caller._id
+
+        socket.emit("callAccepted", {
+            callerId: id
+        })
+    }
+
     return (
         <SocketContext.Provider value={{
             socket,
             onlineUsers,
             makeVoiceCall,
             makeVideoCall,
-            incomingCall
-            // rejectCall
+            incomingCall,
+            rejectCall,
+            acceptCall
         }}>
             {children}
             <Call />

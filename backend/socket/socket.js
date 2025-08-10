@@ -53,7 +53,8 @@ io.on("connection", (socket) => {
 
     socket.on("callHasBeenCut", ({ receiver }) => {
         const receiverSocketId = userSocketMap[receiver];
-
+        console.log(receiverSocketId);
+        
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("callCutByCaller");
         }

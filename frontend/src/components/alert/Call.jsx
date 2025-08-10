@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useSocketContext } from '../../context/SocketContext'
 
 const Call = () => {
-  const { incomingCall, socket } = useSocketContext();
+  const { incomingCall, socket, rejectCall, acceptCall } = useSocketContext();
   const [isCallerCalling, setIsCallerCalling] = useState(true)
 
   useEffect(() => {
@@ -23,14 +23,6 @@ const Call = () => {
     }
   }, [socket])
 
-  const handleReject = () => {
-    const id = incomingCall.caller._id
-
-    socket.emit("callRejected", {
-      callerId: id
-    })
-  }
-
   return (
     <>
       {
@@ -44,8 +36,8 @@ const Call = () => {
               </div>
               <span>{incomingCall?.caller.fullname} is calling.</span>
               <div className='space-x-4'>
-                <button className="btn btn-sm" onClick={handleReject}>Deny</button>
-                <button className="btn btn-sm btn-primary">Accept</button>
+                <button className="btn btn-sm" onClick={rejectCall}>Deny</button>
+                <button className="btn btn-sm btn-primary" onClick={acceptCall}>Accept</button>
               </div>
             </div>
           </div>
