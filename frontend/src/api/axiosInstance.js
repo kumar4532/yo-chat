@@ -5,6 +5,11 @@ const axiosInstance = axios.create({
     withCredentials: true,
 });
 
+console.log("Base URL:", import.meta.env.VITE_API_BASE_URL);
+
+
+console.log(axiosInstance)
+
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");

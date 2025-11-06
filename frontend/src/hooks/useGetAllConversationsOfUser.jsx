@@ -9,7 +9,7 @@ function useGetAllConversationsOfUser() {
         const getAllConversation = async () => {
             setLoading(true);
             try {
-                const res = await axiosInstance.get("/api/messages/");
+                const res = await axiosInstance.get("/messages/");
 
                 if (res.data.error) {
                     throw new Error(res.data.error)

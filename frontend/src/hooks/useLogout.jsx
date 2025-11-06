@@ -1,6 +1,7 @@
 import { useState } from "react"
 import toast from "react-hot-toast"
 import { useAuthContext } from "../context/AuthContext"
+import axiosInstance from "../api/axiosInstance"
 
 const useLogout = () => {
     const [loading, setLoading] = useState(false)
@@ -9,12 +10,9 @@ const useLogout = () => {
     const logout = async() => {
         setLoading(true)
         try {
-            const res = await fetch("/api/auth/logout", {
-                method: "POST",
-                headers: {"Content-Type":"application/json"}
-            })
+            const res = await axiosInstance.post("/auth/logout")
             
-            const data = await res.json();
+            const data = res.data;
             
             if (data.error) {
                 throw new error;

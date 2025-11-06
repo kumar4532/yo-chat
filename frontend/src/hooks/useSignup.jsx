@@ -1,25 +1,28 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import toast from 'react-hot-toast';
 import { useAuthContext } from '../context/AuthContext'
+import axiosInstance from '../api/axiosInstance';
 
 function useSignup() {
-  const [loading, setLoading] = useState(false);
-  const { setAuthUser } = useAuthContext();
+    const [loading, setLoading] = useState(false);
+    const { setAuthUser } = useAuthContext();
 
-  const signup = async ({ fullname, username, password, confirmPassword, gender }) => {
+    const signup = async ({ fullname, username, password, confirmPassword, gender }) => {
         const success = handleInputErrors({ fullname, username, password, confirmPassword, gender });
-        if (!success) return;   
+        if (!success) return;
 
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/signup", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fullname, username, password, confirmPassword, gender }),
+            const res = await axiosInstance.post("/auth/signup", {
+                fullname,
+                username,
+                password,
+                confirmPassword,
+                gender,
             });
 
-            const data = await res.json();            
+            const data = res.data;
 
             if (data) {
                 localStorage.setItem("chat-user", JSON.stringify(data.user));
@@ -40,19 +43,19 @@ function useSignup() {
 
 export default useSignup;
 
-function handleInputErrors ({fullname, username, password, confirmPassword, gender}){
-    
+function handleInputErrors({ fullname, username, password, confirmPassword, gender }) {
+
     if (!fullname || !username || !password || !confirmPassword || !gender) {
-       toast.error("Please fill all the fields"); 
-       return false;
+        toast.error("Please fill all the fields");
+        return false;
     }
 
-    if(password !== confirmPassword){
+    if (password !== confirmPassword) {
         toast.error("Password and ConfirmPasswrd should be similar");
         return false;
     }
 
-    if(password.length < 6){
+    if (password.length < 6) {
         toast.error("Password must be at least 6 characters");
         return false;
     }

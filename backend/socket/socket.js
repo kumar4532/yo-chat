@@ -8,7 +8,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000"],
+        origin: [
+            "https://yo-chat-seven.vercel.app",
+            "http://localhost:5173"
+        ],
         methods: ["GET", "POST"],
     },
 });
@@ -54,7 +57,7 @@ io.on("connection", (socket) => {
     socket.on("callHasBeenCut", ({ receiver }) => {
         const receiverSocketId = userSocketMap[receiver];
         console.log(receiverSocketId);
-        
+
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("callCutByCaller");
         }

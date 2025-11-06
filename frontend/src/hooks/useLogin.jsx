@@ -1,25 +1,21 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import toast from 'react-hot-toast';
 import { useAuthContext } from '../context/AuthContext'
+import axiosInstance from '../api/axiosInstance';
 
 function useLogin() {
-  const [loading, setLoading] = useState(false);
-  const { setAuthUser } = useAuthContext();
+    const [loading, setLoading] = useState(false);
+    const { setAuthUser } = useAuthContext();
 
-  const login = async ({username, password}) => {
+    const login = async ({ username, password }) => {
         const success = handleInputErrors({ username, password });
-        if (!success) return;   
+        if (!success) return;
 
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const data = await res.json();            
+            const res = await axiosInstance.post("/auth/login", { username, password });
+            const data = res.data;
 
             if (data) {
                 localStorage.setItem("chat-user", JSON.stringify(data.user));
@@ -28,8 +24,8 @@ function useLogin() {
             }
 
         } catch (error) {
-            console.log("Error is login from catch"); 
-            toast.error(error.message);
+            console.log("Error while logging in");
+            toast.error(`Error while logging ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -40,13 +36,13 @@ function useLogin() {
 
 export default useLogin;
 
-function handleInputErrors ({username, password}){
+function handleInputErrors({ username, password }) {
     if (!username || !password) {
-       toast.error("Please fill all the fields"); 
-       return false;
+        toast.error("Please fill all the fields");
+        return false;
     }
 
-    if(password.length < 6){
+    if (password.length < 6) {
         toast.error("Password must be at least 6 characters");
         return false;
     }

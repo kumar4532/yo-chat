@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
     origin: [
         "https://yo-chat-seven.vercel.app",
-        "http://localhost:3000"
+        "http://localhost:5173"
     ],
     credentials: true
 }));
@@ -41,3 +41,7 @@ connectDB()
     .catch((err) => {
         console.log("MONGODB connection Failed !!!", err);
     })
+
+app.get("/", (req, res) => {
+  res.send("YoChat backend is running 🚀");
+});

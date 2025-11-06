@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import useConversation from '../zustand/useConversation'
 import toast from "react-hot-toast"
+import axiosInstance from '../api/axiosInstance'
 
 function useSendMessage() {
-  const {messages, setMessages, selectedConversation} = useConversation()
+  const { messages, setMessages, selectedConversation } = useConversation()
   const [loading, setLoading] = useState(false)
 
   const validateFile = (file) => {
@@ -18,49 +19,56 @@ function useSendMessage() {
       throw new Error('File size exceeds 2MB limit.');
     }
   }
-  
-  const sendMessage = async(message, file) => {
+
+  const sendMessage = async (message, file) => {
 
     if (!message && !file) {
-        toast.error('Please provide a message or select a file.');
-        return;
+      toast.error('Please provide a message or select a file.');
+      return;
     }
 
     const formData = new FormData();
 
     if (file) {
-        try {
-          validateFile(file);
-          formData.append("file", file);
-        } catch (error) {
-          toast.error(error.message);
-          return;
-        }
+      try {
+        validateFile(file);
+        formData.append("file", file);
+      } catch (error) {
+        toast.error(error.message);
+        return;
+      }
     }
 
     if (message) {
-        formData.append("message", message);
+      formData.append("message", message);
     }
-    
+
     setLoading(true)
     try {
-        const res = await fetch(`/api/messages/send/${selectedConversation._id}`, {
-            method: "POST",
-            body: formData
-        })
-
-        const data = await res.json();
-        if (data.error) {
-            throw new error
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedConversation._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-        setMessages([...messages, data.newMessage])
+      );
+
+      const data = res.data;
+
+      if (data.error) {
+        throw new error
+      }
+
+      setMessages([...messages, data.newMessage])
     } catch (error) {
-        toast.error(error.message)
+      toast.error(error.message)
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
   }
-  return {loading, sendMessage}
+  return { loading, sendMessage }
 }
 
 export default useSendMessage
