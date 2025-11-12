@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors({
     origin: [
-        "https://yo-chat-seven.vercel.app",
+        "https://yochat.vercel.app",
         "http://localhost:5173"
     ],
     credentials: true
