@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuthContext } from "./AuthContext";
 import io from "socket.io-client";
 import Call from '../components/alert/Call';
@@ -17,10 +17,13 @@ export const SocketContextProvider = ({ children }) => {
 
     useEffect(() => {
         if (authUser) {
-            const socket = io("http://localhost:8000", {
+            const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
+            const socket = io(SOCKET_URL, {
                 query: {
-                    userId: authUser._id
-                }
+                    userId: authUser._id,
+                },
+                withCredentials: true,
             });
 
             setSocket(socket);
