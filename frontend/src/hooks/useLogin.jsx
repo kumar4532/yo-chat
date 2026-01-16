@@ -17,8 +17,9 @@ function useLogin() {
             const res = await axiosInstance.post("/auth/login", { username, password });
             const data = res.data;
 
+            console.log("After login", data)
+
             if (data) {
-                localStorage.setItem("chat-user", JSON.stringify(data.user));
                 setAuthUser(data.user);
                 toast.success("Logged In Successfully")
             }

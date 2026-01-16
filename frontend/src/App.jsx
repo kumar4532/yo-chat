@@ -6,11 +6,16 @@ import SignUp from "./pages/signup/SignUp"
 import Profile from "./pages/profile/Profile"
 import Video from "./pages/call/Video"
 import Voice from "./pages/call/Voice"
-import {Toaster} from "react-hot-toast"
+import { Toaster } from "react-hot-toast"
 import { useAuthContext } from "./context/AuthContext"
+import LayoutSkeleton from "./components/skeleton/LayoutSkeleton"
 
 function App() {
-  const { authUser } = useAuthContext();
+  const { authUser, loading } = useAuthContext();
+
+  if (loading) {
+    return <LayoutSkeleton />;
+  }
   return (
     <>
       <div className="p-4 h-screen flex items-center justify-center">

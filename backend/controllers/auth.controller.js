@@ -39,10 +39,17 @@ const signup = async (req, res) => {
         generateTokenAndSetCookies(user._id, res);
         await user.save();
 
+        const safeUser = {
+            _id: user._id,
+            username: user.username,
+            fullname: user.fullname,
+            profilePic: user.profilePic
+        };
+
         return res
             .status(200)
             .json({
-                user
+                safeUser
             })
 
     } catch (error) {
@@ -64,11 +71,14 @@ const login = async (req, res) => {
 
         generateTokenAndSetCookies(user._id, res);
 
-        return res
-            .status(200)
-            .json({
-                user
-            });
+        const safeUser = {
+            _id: user._id,
+            username: user.username,
+            fullname: user.fullname,
+            profilePic: user.profilePic
+        };
+
+        return res.status(200).json({ user: safeUser });
 
     } catch (error) {
         console.log("Error in login controller", error);
@@ -87,6 +97,15 @@ const logout = (req, res) => {
         throw error;
     }
 }
+
+const getMe = async (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch user" });
+    }
+};
+
 
 const updateUserProfilePic = async (req, res) => {
     try {
@@ -146,6 +165,7 @@ export {
     signup,
     login,
     logout,
+    getMe,
     updateUserProfilePic,
     updateUserName
 }

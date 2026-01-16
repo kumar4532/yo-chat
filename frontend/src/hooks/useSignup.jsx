@@ -25,7 +25,6 @@ function useSignup() {
             const data = res.data;
 
             if (data) {
-                localStorage.setItem("chat-user", JSON.stringify(data.user));
                 setAuthUser(data.user);
                 toast.success("Signed Up Successfully")
             }
