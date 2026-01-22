@@ -9,7 +9,7 @@ function Home() {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024) 
+      setIsMobile(window.innerWidth < 1024)
     }
 
     handleResize() // Check on initial render
@@ -30,24 +30,10 @@ function Home() {
 
   return (
     <div className='flex h-[90vh] w-full rounded-lg overflow-hidden'>
-      {(!isMobile || showSidebar) && (
-        <div className={`${isMobile ? 'w-full' : 'w-1/4'}`}>
-          <Sidebar onConversationSelect={handleConversationSelect} />
-        </div>
-      )}
-      {(!isMobile || !showSidebar) && (
-        <div className="w-full">
-          {isMobile && (
-            <button 
-              className="m-2 p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
-              onClick={handleBackToSidebar}
-            >
-              <ArrowLeft className="h-6 w-6" />
-            </button>
-          )}
-          <MessageContainer />
-        </div>
-      )}
+      <div>
+        <Sidebar onConversationSelect={handleConversationSelect} />
+      </div>
+      <MessageContainer />
     </div>
   )
 }

@@ -5,62 +5,70 @@ import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
-        const {message} = req.body;
-        const {id: receiverUser} = req.params;
+        const { message } = req.body;
+        const { id: receiverUser } = req.params;
         const senderUser = req.user._id;
         const uploadFile = req.file?.path
-        
+
         if (!message && !uploadFile) {
             return res.status(400).json({ error: "Please provide either a message or a file" });
         }
-        
+
         let file = "";
         if (uploadFile) {
             file = await uploadOnCloudinary(uploadFile);
-            
+
             if (!file || !file.url) {
                 return res.status(400).json({ error: "File upload failed" });
             }
-        }    
-            
+        }
+
         let conversation = await Conversation.findOne({
-            participents: { $all: [senderUser, receiverUser] }
+            participants: { $all: [senderUser, receiverUser] }
         })
 
         if (!conversation) {
             conversation = await Conversation.create({
-                participents: [senderUser, receiverUser]
+                participants: [senderUser, receiverUser]
             })
         }
 
-        const newMessage = new Message({
+        const newMessage = await Message.create({
             conversationId: conversation._id,
             senderId: senderUser,
             receiverId: receiverUser,
             message: message || "",
-            file: file?.url
-        })
+            file: file?.url || "",
+        });
 
         if (newMessage) {
             conversation.messages.push(newMessage._id)
         }
 
-        // await conversation.save();
+        await conversation.save();
+
+        const populatedConversation = await Conversation.findById(conversation._id)
+            .populate({
+                path: "messages",
+                select: "_id senderId receiverId message file seenAt createdAt",
+            })
+            .populate({
+                path: "participants",
+                select: "_id fullname username profilePic",
+            });
+
         // await newMessage.save();
-
-        await Promise.all([conversation.save(), newMessage.save()])
-
         const receiverSocketId = getReceiverSocketId(receiverUser);
-		if (receiverSocketId) {
-			// io.to(<socket_id>).emit() used to send events to specific client
-			io.to(receiverSocketId).emit("newMessage", newMessage);
-		}
+        if (receiverSocketId) {
+            // io.to(<socket_id>).emit() used to send events to specific client
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
 
-        return res
-        .status(200)
-        .json({
-            newMessage
-        })
+        return res.status(200).json({
+            newMessage,
+            conversation: populatedConversation,
+        });
+
 
     } catch (error) {
         console.log("Error in sendMessage controller");
@@ -68,37 +76,39 @@ export const sendMessage = async (req, res) => {
     }
 }
 
-export const getMessages = async(req, res) => {
+export const getMessages = async (req, res) => {
     try {
-        const { id:userToChatId } = req.params
-        const senderId = req.user._id
+        const { id: conversationId } = req.params;
 
-        const conversation = await Conversation.findOne({
-            participents: {$all : [senderId, userToChatId]}
-        }).populate("messages");
+        console.log(conversationId)
+        const conversation = await Conversation.findById(conversationId)
+            .populate("messages");
 
         if (!conversation) {
-            return res.status(200).json("Please send a message to start a conversation.");
+            return res.status(404).json({
+                conversationId: null,
+                messages: [],
+            });
         }
 
-        return res
-        .status(200)
-        .json({
-            messages: conversation.messages
-        })
+        return res.status(200).json({
+            conversationId: conversation._id,
+            messages: conversation.messages,
+        });
     } catch (error) {
-        console.log("Error in get message controller");
-        throw error
+        console.log("Error in getMessages controller", error);
+        res.status(500).json({ error: "Failed to get messages" });
     }
-}
+};
+
 
 export const getAllConversationsOfUser = async (req, res) => {
     try {
         const userId = req.user._id;
 
         const allConversations = await Conversation.find({
-            participents: userId
-        }).populate('participents', '-password').select("-messages");
+            participants: userId
+        }).populate('participants', '-password').select("-messages");
 
         res.status(200).json(allConversations);
     } catch (error) {

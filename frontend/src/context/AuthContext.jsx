@@ -17,7 +17,6 @@ export const AuthContextProvider = ({ children }) => {
                 const res = await axiosInstance.get("/auth/me");
 
                 setAuthUser(res.data);
-                console.log("response for refresh", res.data)
             } catch {
                 setAuthUser(null);
             } finally {

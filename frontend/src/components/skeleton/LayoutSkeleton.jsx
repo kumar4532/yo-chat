@@ -22,7 +22,7 @@ const LayoutSkeleton = () => {
 
 
                 {/* Input */}
-                <div className="h-12 bg-slate-800 px-4 flex items-center">
+                <div className="mt-auto h-12 bg-slate-800 px-4 flex items-center">
                     <div className="h-8 w-full bg-slate-700 rounded" />
                 </div>
             </div>

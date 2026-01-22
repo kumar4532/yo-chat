@@ -1,32 +1,32 @@
-import { useEffect, useState } from 'react'
-import axiosInstance from '../api/axiosInstance';
+import { useEffect, useState } from "react";
+import axiosInstance from "../api/axiosInstance";
+import useConversation from "../zustand/useConversation";
 
 function useGetAllConversationsOfUser() {
-    const [loading, setLoading] = useState(false)
-    const [currentConversations, setCurrentConversations] = useState([]);
+    const {
+        currentConversations = [],
+        setCurrentConversations,
+    } = useConversation();
+
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const getAllConversation = async () => {
+        const fetchConversations = async () => {
             setLoading(true);
             try {
                 const res = await axiosInstance.get("/messages/");
-
-                if (res.data.error) {
-                    throw new Error(res.data.error)
-                }
-
                 setCurrentConversations(res.data);
-            } catch (error) {
-                toast.error(error.message)
+            } catch (err) {
+                console.error(err);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        }
+        };
 
-        getAllConversation();
-    }, [])
+        fetchConversations();
+    }, [currentConversations.length]);
 
-    return { loading, currentConversations };
+    return { currentConversations, loading };
 }
 
-export default useGetAllConversationsOfUser
+export default useGetAllConversationsOfUser;

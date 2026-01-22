@@ -1,9 +1,9 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const messageSchema = new mongoose.Schema({
-    conversationId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Conversation" 
+    conversationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Conversation"
     },
     senderId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -21,11 +21,11 @@ const messageSchema = new mongoose.Schema({
     file: {
         type: String
     },
-    seen: {
-        type: Boolean,
-        default: false
-    }
-}, {timestamps: true})
+    seenAt: {
+        type: Date,
+        default: null,
+    },
+}, { timestamps: true })
 
 const Message = mongoose.model("Message", messageSchema);
 

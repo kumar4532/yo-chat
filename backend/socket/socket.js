@@ -18,14 +18,21 @@ const io = new Server(server, {
 });
 
 export const getReceiverSocketId = (receiverId) => {
-    return userSocketMap[receiverId];
+    return userSocketMap[receiverId?.toString()];
 };
 
-const userSocketMap = {}; // {userId: socketId}
+const userSocketMap = {};
 
 io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
-    if (userId != "undefined") userSocketMap[userId] = socket.id;
+
+    if (!userId) {
+        console.log("Socket connected without userId:", socket.id);
+        return;
+    }
+
+    const normalizedUserId = userId.toString();
+    userSocketMap[normalizedUserId] = socket.id;
 
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
@@ -57,7 +64,6 @@ io.on("connection", (socket) => {
 
     socket.on("callHasBeenCut", ({ receiver }) => {
         const receiverSocketId = userSocketMap[receiver];
-        console.log(receiverSocketId);
 
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("callCutByCaller");
@@ -65,8 +71,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("callRejected", ({ callerId }) => {
-        console.log("This is callerid", callerId);
-
         const callSocketId = userSocketMap[callerId]
 
         if (callSocketId) {
@@ -76,7 +80,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
-        delete userSocketMap[userId];
+        delete userSocketMap[normalizedUserId];
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
     });
 });

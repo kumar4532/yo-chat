@@ -19,9 +19,11 @@ export const SocketContextProvider = ({ children }) => {
         if (authUser) {
             const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
+            if (!authUser?._id) return;
+
             const socket = io(SOCKET_URL, {
                 query: {
-                    userId: authUser._id,
+                    userId: authUser._id.toString(),
                 },
                 withCredentials: true,
             });
@@ -47,7 +49,7 @@ export const SocketContextProvider = ({ children }) => {
                 setSocket(null);
             }
         }
-    }, [authUser]);
+    }, [authUser?._id]);
 
     const makeVoiceCall = (remoteId) => {
         const localId = authUser._id;

@@ -17,17 +17,22 @@ function useLogin() {
             const res = await axiosInstance.post("/auth/login", { username, password });
             const data = res.data;
 
-            console.log("After login", data)
-
             if (data) {
                 setAuthUser(data.user);
                 toast.success("Logged In Successfully")
             }
 
         } catch (error) {
-            console.log("Error while logging in");
-            toast.error(`Error while logging ${error.message}`);
-        } finally {
+            console.log("Login error:", error);
+
+            const errorMessage =
+                error.response?.data?.error ||
+                error.message ||
+                "Something went wrong";
+
+            toast.error(errorMessage);
+        }
+        finally {
             setLoading(false);
         }
     };

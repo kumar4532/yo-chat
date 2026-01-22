@@ -40,7 +40,7 @@ function Profile() {
                 throw new error
             }
         } catch (error) {
-            console.log("Error while updating profile pic", error);
+            toast.error(`Error while updating profile pic ${error.message}`);
         } finally {
             setLoading(false)
             setFile(null)

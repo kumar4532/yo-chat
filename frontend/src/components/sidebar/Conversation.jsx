@@ -1,35 +1,44 @@
-import React from 'react'
-import SeperateConversations from './SeperateConversations'
-import useGetAllConversationsOfUser from '../../hooks/useGetAllConversationsOfUser';
-import { useAuthContext } from '../../context/AuthContext';
+import SeperateConversations from "./SeperateConversations";
+import useGetAllConversationsOfUser from "../../hooks/useGetAllConversationsOfUser";
+import { useAuthContext } from "../../context/AuthContext";
+import useConversation from "../../zustand/useConversation";
 
-function Conversation({ selectedUser }) {
-  const {authUser} = useAuthContext();
-  const {loading, currentConversations} = useGetAllConversationsOfUser();
+function Conversation() {
+  const { authUser } = useAuthContext();
+  const { selectedReceiver } = useConversation();
+  const { currentConversations = [], loading } = useGetAllConversationsOfUser();
 
-  const users = currentConversations.map(conversation => 
-    conversation.participents.find(user => user._id !== authUser._id)
-  );
+  let users = currentConversations
+    .map((conversation) =>
+      conversation.participants?.find(
+        (user) => user._id !== authUser._id
+      )
+    )
+    .filter(Boolean);
+
+  if (selectedReceiver) {
+    const isAlreadyInList = users.some(u => u._id === selectedReceiver._id);
+
+    if (!isAlreadyInList) {
+      users = [selectedReceiver, ...users];
+    }
+  }
 
   return (
-    <div className='py-2 flex flex-col overflow-auto'>
-      {selectedUser && !users.some(user => user._id === selectedUser._id) && (
-        <SeperateConversations
-          key={selectedUser._id}
-          conversation={selectedUser}
-          lastIdx={false}
-        />
-      )}
+    <div className="py-2 flex flex-col overflow-auto">
       {users.map((user, idx) => (
         <SeperateConversations
           key={user._id}
-          conversation={user}
+          receiver={user}
           lastIdx={idx === users.length - 1}
         />
       ))}
-      {loading ? <span className='loading loading-spinner mx-auto'></span> : null}
+
+      {loading && (
+        <span className="loading loading-spinner mx-auto" />
+      )}
     </div>
-  )
+  );
 }
 
 export default Conversation;
