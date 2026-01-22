@@ -84,7 +84,7 @@ function Message({ message }) {
             {messageTime}
             {fromMe && (
               <div className="chat-footer">
-                {message.seen ? "Seen" : "Delivered"}
+                {message.seenAt ? "Seen" : "Delivered"}
               </div>
             )}
           </div>

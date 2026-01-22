@@ -1,4 +1,3 @@
-import React, { useRef, useEffect } from 'react';
 import Message from './Message';
 import Skeleton from '../skeleton/Skeleton';
 import useGetMessages from '../../hooks/useGetMessages';
@@ -12,7 +11,6 @@ function Messages() {
     selectedConversation
       ? messagesByConversation[selectedConversation._id] || []
       : [];
-
 
   return (
     <div className="px-4 flex-1 overflow-auto">

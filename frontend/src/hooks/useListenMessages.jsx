@@ -7,6 +7,8 @@ function useListenMessages() {
   const {
     addMessageToConversation,
     addNewConversation,
+    selectedConversation,
+    incrementUnread
   } = useConversation();
 
   useEffect(() => {
@@ -14,6 +16,13 @@ function useListenMessages() {
 
     const handleNewMessage = (newMessage) => {
       addMessageToConversation(newMessage.conversationId, newMessage);
+
+      const isChatOpen =
+        selectedConversation?._id === newMessage.conversationId;
+
+      if (!isChatOpen) {
+        incrementUnread(newMessage.conversationId);
+      }
     };
 
     const handleNewConversation = ({ conversation }) => {

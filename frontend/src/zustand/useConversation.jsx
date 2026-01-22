@@ -7,6 +7,25 @@ const useConversation = create((set) => ({
 	selectedReceiver: null,
 	setSelectedReceiver: (u) => set({ selectedReceiver: u }),
 
+	unreadCountByConversation: {},
+
+	incrementUnread: (conversationId) =>
+		set((state) => ({
+			unreadCountByConversation: {
+				...state.unreadCountByConversation,
+				[conversationId]:
+					(state.unreadCountByConversation[conversationId] || 0) + 1,
+			},
+		})),
+
+	clearUnread: (conversationId) =>
+		set((state) => ({
+			unreadCountByConversation: {
+				...state.unreadCountByConversation,
+				[conversationId]: 0,
+			},
+		})),
+
 	messagesByConversation: {},
 
 	currentConversations: [],
