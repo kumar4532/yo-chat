@@ -9,9 +9,11 @@ import Voice from "./pages/call/Voice"
 import { Toaster } from "react-hot-toast"
 import { useAuthContext } from "./context/AuthContext"
 import LayoutSkeleton from "./components/skeleton/LayoutSkeleton"
+import useListenMessages from "./hooks/useListenMessages"
 
 function App() {
   const { authUser, loading } = useAuthContext();
+  useListenMessages();
 
   if (loading) {
     return <LayoutSkeleton />;

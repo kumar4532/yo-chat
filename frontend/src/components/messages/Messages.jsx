@@ -2,13 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import Message from './Message';
 import Skeleton from '../skeleton/Skeleton';
 import useGetMessages from '../../hooks/useGetMessages';
-import useListenMessages from '../../hooks/useListenMessages';
 import useConversation from '../../zustand/useConversation';
 
 function Messages() {
   const { selectedConversation, messagesByConversation } = useConversation();
   const { loading } = useGetMessages();
-  useListenMessages();
 
   const messages =
     selectedConversation

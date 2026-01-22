@@ -23,8 +23,6 @@ function useLogin() {
             }
 
         } catch (error) {
-            console.log("Login error:", error);
-
             const errorMessage =
                 error.response?.data?.error ||
                 error.message ||

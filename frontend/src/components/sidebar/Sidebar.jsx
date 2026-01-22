@@ -8,7 +8,7 @@ import useConversation from "../../zustand/useConversation";
 
 function Sidebar() {
   const navigate = useNavigate();
-  const { setSelectedReceiver, setSelectedConversation } = useConversation();
+  const { setSelectedReceiver, setSelectedConversation, currentConversations } = useConversation();
 
   const handleConversationClick = (user) => {
     setSelectedReceiver(user);

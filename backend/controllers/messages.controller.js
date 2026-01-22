@@ -27,10 +27,14 @@ export const sendMessage = async (req, res) => {
             participants: { $all: [senderUser, receiverUser] }
         })
 
+        let isNewConversation = false;
+
         if (!conversation) {
             conversation = await Conversation.create({
                 participants: [senderUser, receiverUser]
             })
+
+            isNewConversation = true;
         }
 
         const newMessage = await Message.create({
@@ -59,9 +63,16 @@ export const sendMessage = async (req, res) => {
 
         // await newMessage.save();
         const receiverSocketId = getReceiverSocketId(receiverUser);
+
         if (receiverSocketId) {
             // io.to(<socket_id>).emit() used to send events to specific client
             io.to(receiverSocketId).emit("newMessage", newMessage);
+
+            if (isNewConversation) {
+                io.to(receiverSocketId).emit("newConversation", {
+                    conversation: populatedConversation,
+                });
+            }
         }
 
         return res.status(200).json({
