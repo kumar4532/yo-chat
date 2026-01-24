@@ -17,8 +17,7 @@ function useListenMessages() {
     const handleNewMessage = (newMessage) => {
       addMessageToConversation(newMessage.conversationId, newMessage);
 
-      const isChatOpen =
-        selectedConversation?._id === newMessage.conversationId;
+      const isChatOpen = selectedConversation?._id === newMessage.conversationId;
 
       if (!isChatOpen) {
         incrementUnread(newMessage.conversationId);
@@ -37,7 +36,7 @@ function useListenMessages() {
       socket.off("newMessage", handleNewMessage);
       socket.off("newConversation", handleNewConversation);
     };
-  }, [socket, addMessageToConversation, addNewConversation]);
+  }, [socket, addMessageToConversation, addNewConversation, selectedConversation]);
 }
 
 export default useListenMessages;

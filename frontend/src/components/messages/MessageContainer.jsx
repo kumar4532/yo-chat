@@ -32,8 +32,8 @@ function MessageContainer() {
   return (
     <div className="w-full flex flex-col h-full">
       {/* Header */}
-      <div className="flex justify-between bg-slate-200 px-4 py-2 mb-2">
-        <span className="font-semibold text-slate-900">
+      <div className="flex items-center justify-between bg-slate-200 px-4 py-3 mb-2">
+        <span className="font-semibold text-lg text-slate-900">
           To: {selectedReceiver.fullname}
         </span>
         <div className="flex gap-2">

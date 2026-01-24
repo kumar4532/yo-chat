@@ -51,17 +51,15 @@ function SearchInput() {
 
       {search.trim() !== '' && searchResults.length > 0 && (
         <div className='bg-slate-900 rounded-xl mt-2 text-white w-full'>
-          <ul className='p-4'>
+          <ul className='p-2 space-y-2'>
             {searchResults.map((user, idx) => (
               <li
                 key={user._id}
-                className='flex flex-row justify-between items-center cursor-pointer py-1 border border-red-500 mb-1'
+                className='flex flex-row justify-between items-center cursor-pointer p-2 hover:bg-slate-700 rounded-md'
                 onClick={() => handleStartConvo(user)}
               >
-                <div className='w-12 rounded-full'>
-                  <img src={user.profilePic} alt="user avatar" />
-                </div>
-                <span className="truncate flex-grow ml-2">{user.fullname}</span>
+                <img src={user.profilePic} alt="user avatar" className='w-12 h-12 rounded-full object-cover' />
+                <span className="truncate flex-grow ml-3">{user.fullname}</span>
               </li>
             ))}
           </ul>

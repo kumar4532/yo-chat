@@ -8,7 +8,7 @@ import useConversation from "../../zustand/useConversation";
 
 function Sidebar() {
   const navigate = useNavigate();
-  const { setSelectedReceiver, setSelectedConversation, currentConversations } = useConversation();
+  const { setSelectedReceiver, setSelectedConversation } = useConversation();
 
   const handleConversationClick = (user) => {
     setSelectedReceiver(user);
@@ -21,16 +21,16 @@ function Sidebar() {
 
       <div className="divider px-3"></div>
 
-      <Conversation onConversationClick={handleConversationClick} />
+      <Conversation />
 
       <div className="flex flex-row justify-between mt-auto">
         <Logout_Btn />
         <button
-          className="tooltip text-2xl hover:bg-white rounded-full p-2"
+          className="tooltip text-2xl hover:bg-slate-600 rounded-full p-2"
           data-tip="Profile"
           onClick={() => navigate("/profile")}
         >
-          <CgProfile />
+          <CgProfile className="text-white" />
         </button>
       </div>
     </div>
