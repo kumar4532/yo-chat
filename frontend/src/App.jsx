@@ -20,10 +20,13 @@ function App() {
   useListenMessages();
 
   if (loading) {
-    const authRoutes = ["/login", "/signup"];
-    const isAuthRoute = authRoutes.includes(location.pathname);
+    const currentPath = location.pathname.toLowerCase().replace(/\/$/, "") || "/";
 
-    return isAuthRoute ? <AuthSkeleton /> : <LayoutSkeleton />;
+    const isAuthPage = currentPath === "/login" || currentPath === "/signup";
+
+    console.log("Current Path:", currentPath, "Is Auth Page:", isAuthPage);
+
+    return isAuthPage ? <AuthSkeleton /> : <LayoutSkeleton />;
   }
 
   return (
