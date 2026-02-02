@@ -23,8 +23,12 @@ function App() {
     location.pathname === "/signup"
 
   if (loading) {
-    if (isAuthPage) return <AuthSkeleton />
-    if (authUser) return <LayoutSkeleton />
+    if (isAuthPage) {
+      return <AuthSkeleton />
+    }
+    else {
+      return <LayoutSkeleton />
+    }
   }
 
   return (
