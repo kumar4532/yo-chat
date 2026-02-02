@@ -15,10 +15,11 @@ export const AuthContextProvider = ({ children }) => {
         const getMe = async () => {
             try {
                 const res = await axiosInstance.get("/auth/me");
-
+                localStorage.setItem("isLoggedIn", "true");
                 setAuthUser(res.data);
             } catch {
                 setAuthUser(null);
+                localStorage.removeItem("isLoggedIn");
             } finally {
                 setLoading(false);
             }

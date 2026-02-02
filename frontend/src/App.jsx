@@ -1,6 +1,5 @@
 import React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { useAuthContext } from "./context/AuthContext";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
@@ -11,38 +10,49 @@ import Voice from "./pages/call/Voice";
 
 import { Toaster } from "react-hot-toast";
 import useListenMessages from "./hooks/useListenMessages";
-import AuthSkeleton from "./components/skeleton/AuthSkeleton";
-import LayoutSkeleton from "./components/skeleton/LayoutSkeleton";
+import PublicRoute from "./components/routing/PublicRoute";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
 
 function App() {
-  const { authUser, loading } = useAuthContext();
-  const location = useLocation();
   useListenMessages();
-
-  if (loading) {
-    const currentPath = location.pathname.toLowerCase().replace(/\/$/, "") || "/";
-
-    const isAuthPage = currentPath === "/login" || currentPath === "/signup";
-
-    console.log("Current Path:", currentPath, "Is Auth Page:", isAuthPage);
-
-    return isAuthPage ? <AuthSkeleton /> : <LayoutSkeleton />;
-  }
 
   return (
     <div className="p-4 h-screen flex items-center justify-center">
       <Routes>
-        <Route path="/" element={authUser ? <Home /> : <Navigate to="/login" />} />
-        <Route path="/login" element={authUser ? <Navigate to="/" /> : <Login />} />
-        <Route path="/signup" element={authUser ? <Navigate to="/" /> : <SignUp />} />
-        <Route path="/profile" element={authUser ? <Profile /> : <Navigate to="/login" />} />
-        <Route path="/video" element={authUser ? <Video /> : <Navigate to="/login" />} />
-        <Route path="/voice" element={authUser ? <Voice /> : <Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to={authUser ? "/" : "/login"} />} />
+        <Route
+          path="/login"
+          element={<PublicRoute><Login /></PublicRoute>}
+        />
+        <Route
+          path="/signup"
+          element={<PublicRoute><SignUp /></PublicRoute>}
+        />
+
+        <Route
+          path="/"
+          element={<ProtectedRoute><Home /></ProtectedRoute>}
+        />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute><Profile /></ProtectedRoute>}
+        />
+        <Route
+          path="/video"
+          element={<ProtectedRoute><Video /></ProtectedRoute>}
+        />
+        <Route
+          path="/voice"
+          element={<ProtectedRoute><Voice /></ProtectedRoute>}
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/" />}
+        />
       </Routes>
       <Toaster />
     </div>
   );
 }
 
-export default App;
+export default App

@@ -19,6 +19,7 @@ function useLogin() {
 
             if (data) {
                 setAuthUser(data.user);
+                localStorage.setItem("isLoggedIn", "true");
                 toast.success("Logged In Successfully")
             }
 
@@ -27,6 +28,8 @@ function useLogin() {
                 error.response?.data?.error ||
                 error.message ||
                 "Something went wrong";
+
+            localStorage.removeItem("isLoggedIn");
 
             toast.error(errorMessage);
         }

@@ -26,10 +26,12 @@ function useSignup() {
 
             if (data) {
                 setAuthUser(data.user);
+                localStorage.setItem("isLoggedIn", "true");
                 toast.success("Signed Up Successfully")
             }
 
         } catch (error) {
+            localStorage.removeItem("isLoggedIn");
             toast.error(error.response?.data?.error);
         } finally {
             setLoading(false);
