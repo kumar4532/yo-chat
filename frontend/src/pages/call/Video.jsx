@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MdOutlineCallEnd, MdVideocamOff, MdVideocam, MdMicOff, MdMic } from "react-icons/md";
 import { useSocketContext } from '../../context/SocketContext';
@@ -8,16 +8,51 @@ function Video() {
     const navigate = useNavigate();
     const { socket } = useSocketContext();
     const videoRef = useRef(null);
+    const streamRef = useRef(null);
     const [stream, setStream] = useState(null);
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [isMicOn, setIsMicOn] = useState(true);
 
     const id = searchParams.get('id');
+    const mode = searchParams.get('mode');
+    const [isConnected, setIsConnected] = useState(mode !== "outgoing");
+
+    const stopMediaStream = useCallback(() => {
+        const activeStream = streamRef.current;
+        if (!activeStream) return;
+
+        for (const track of activeStream.getTracks()) {
+            track.stop();
+        }
+
+        streamRef.current = null;
+        setStream(null);
+
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
+        }
+    }, []);
+
+    const handleRemoteEnd = useCallback(() => {
+        stopMediaStream();
+        navigate('/');
+    }, [navigate, stopMediaStream]);
+
+    const handleEndCall = useCallback(() => {
+        if (socket) {
+            socket.emit("callEndedByLocal", { to: id });
+        }
+        stopMediaStream();
+        navigate('/');
+    }, [socket, id, stopMediaStream, navigate]);
 
     useEffect(() => {
+        if (!id) return;
+
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then((mediaStream) => {
                 setStream(mediaStream);
+                streamRef.current = mediaStream;
                 if (videoRef.current) {
                     videoRef.current.srcObject = mediaStream;
                 }
@@ -26,32 +61,30 @@ function Video() {
                 console.error("Error accessing media devices:", error);
             });
 
-        socket.on("callRejectedByReciever", handleEndCall);
-
         return () => {
-            socket.off("callRejectedByReciever", handleEndCall);
             stopMediaStream();
         };
-    }, [socket]);
+    }, [id, stopMediaStream]);
 
-    const stopMediaStream = () => {
-        if (stream) {
-            for (const track of stream.getTracks()) {
-                track.stop();
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleAccepted = ({ from }) => {
+            if (!id || from === id) {
+                setIsConnected(true);
             }
-            videoRef.current.srcObject = null;
-            setStream(null);
-        }
-    };
+        };
 
-    const handleEndCall = () => {
-        socket.emit("callHasBeenCut", { receiver: id });
-        stopMediaStream();
-        // Small delay to ensure cleanup completes before navigation
-        setTimeout(() => {
-            navigate('/');
-        }, 100);
-    };
+        socket.on("callAcceptedByRemote", handleAccepted);
+        socket.on("callRejectedByRemote", handleRemoteEnd);
+        socket.on("callEndedByRemote", handleRemoteEnd);
+
+        return () => {
+            socket.off("callAcceptedByRemote", handleAccepted);
+            socket.off("callRejectedByRemote", handleRemoteEnd);
+            socket.off("callEndedByRemote", handleRemoteEnd);
+        };
+    }, [socket, id, handleRemoteEnd]);
 
     const toggleCamera = () => {
         if (stream) {
@@ -75,6 +108,7 @@ function Video() {
 
     return (
         <div className='flex flex-col items-center justify-center h-screen bg-gray-900 text-white'>
+            {!id && <div className='mb-4 text-red-300'>Missing call user.</div>}
             <div className="relative w-72 h-72 md:w-96 md:h-96 mb-6 border-4 border-blue-500 rounded-lg overflow-hidden">
                 <video
                     ref={videoRef}
@@ -82,6 +116,9 @@ function Video() {
                     playsInline
                     className="w-full h-full object-cover"
                 />
+            </div>
+            <div className="mb-4 text-sm text-gray-300">
+                {mode === "outgoing" && !isConnected ? "Calling..." : "In call"}
             </div>
             {/* Controls */}
             <div className="flex gap-4">

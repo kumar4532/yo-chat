@@ -34,12 +34,12 @@ export const SocketContextProvider = ({ children }) => {
                 setOnlineUsers(users);
             });
 
-            socket.on("incomingVideoCall", (data) => {
-                setIncomingCall({ ...data, type: 'video' });
+            socket.on("incomingCall", (data) => {
+                setIncomingCall(data);
             });
 
-            socket.on("incomingVoiceCall", (data) => {
-                setIncomingCall({ ...data, type: 'voice' });
+            socket.on("callEndedByRemote", () => {
+                setIncomingCall(null);
             });
 
             return () => socket.close();
@@ -51,53 +51,65 @@ export const SocketContextProvider = ({ children }) => {
         }
     }, [authUser?._id]);
 
-    const makeVoiceCall = (remoteId) => {
+    const startVoiceCall = (remoteId) => {
         const localId = authUser._id;
 
         if (socket) {
-            socket.emit("outGoingVoiceCall", {
-                caller: localId,
-                reciever: remoteId
+            socket.emit("startCall", {
+                callerId: localId,
+                receiverId: remoteId,
+                type: "voice",
             });
         }
     }
 
-    const makeVideoCall = (remoteId) => {
+    const startVideoCall = (remoteId) => {
         const localId = authUser._id;
 
         if (socket) {
-            socket.emit("outGoingVideoCall", {
-                caller: localId,
-                reciever: remoteId
+            socket.emit("startCall", {
+                callerId: localId,
+                receiverId: remoteId,
+                type: "video",
             });
         }
     }
 
     const rejectCall = () => {
-        const id = incomingCall.caller._id
+        if (!socket || !incomingCall?.caller?._id) return;
+        const id = incomingCall.caller._id;
 
-        socket.emit("callRejected", {
-            callerId: id
-        })
+        socket.emit("callRejectedByLocal", {
+            to: id,
+            type: incomingCall.type
+        });
+        setIncomingCall(null);
     }
 
     const acceptCall = () => {
-        const id = incomingCall.caller._id
+        if (!socket || !incomingCall?.caller?._id) return;
+        const id = incomingCall.caller._id;
 
-        socket.emit("callAccepted", {
-            callerId: id
-        })
+        socket.emit("callAcceptedByLocal", {
+            to: id,
+            type: incomingCall.type
+        });
+    }
+
+    const clearIncomingCall = () => {
+        setIncomingCall(null);
     }
 
     return (
         <SocketContext.Provider value={{
             socket,
             onlineUsers,
-            makeVoiceCall,
-            makeVideoCall,
+            startVoiceCall,
+            startVideoCall,
             incomingCall,
             rejectCall,
-            acceptCall
+            acceptCall,
+            clearIncomingCall
         }}>
             {children}
             <Call />

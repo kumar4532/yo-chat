@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 function MessageContainer() {
   const { authUser } = useAuthContext();
   const { selectedReceiver, selectedConversation } = useConversation();
-  const { makeVideoCall, makeVoiceCall } = useSocketContext();
+  const { startVideoCall, startVoiceCall } = useSocketContext();
   const navigate = useNavigate();
 
   if (!selectedReceiver || !selectedConversation) {
@@ -20,13 +20,25 @@ function MessageContainer() {
   }
 
   const handlePhoneCall = () => {
-    makeVoiceCall(selectedReceiver._id);
-    navigate(`/voice`);
+    startVoiceCall(selectedReceiver._id);
+    const query = new URLSearchParams({
+      id: selectedReceiver._id,
+      name: selectedReceiver.fullname,
+      pic: selectedReceiver.profilePic,
+      mode: "outgoing",
+    });
+    navigate(`/voice?${query.toString()}`);
   };
 
   const handleVideoCall = () => {
-    makeVideoCall(selectedReceiver._id);
-    navigate(`/video`);
+    startVideoCall(selectedReceiver._id);
+    const query = new URLSearchParams({
+      id: selectedReceiver._id,
+      name: selectedReceiver.fullname,
+      pic: selectedReceiver.profilePic,
+      mode: "outgoing",
+    });
+    navigate(`/video?${query.toString()}`);
   };
 
   return (

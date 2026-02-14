@@ -36,47 +36,55 @@ io.on("connection", (socket) => {
 
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-    socket.on("outGoingVoiceCall", async ({ caller, reciever }) => {
-        const remoteSocketId = userSocketMap[reciever]
+    const emitToUser = (targetUserId, event, payload = {}) => {
+        if (!targetUserId) return;
+        const remoteSocketId = userSocketMap[targetUserId.toString()];
+        if (remoteSocketId) {
+            io.to(remoteSocketId).emit(event, payload);
+        }
+    };
+
+    socket.on("startCall", async ({ callerId, receiverId, type }) => {
+        const normalizedReceiverId = receiverId?.toString();
+        const remoteSocketId = userSocketMap[normalizedReceiverId];
 
         if (remoteSocketId) {
-            const localCaller = await User.findById(caller)
+            const localCaller = await User.findById(callerId);
+            if (!localCaller) return;
 
-            io.to(remoteSocketId).emit("incomingVoiceCall", {
+            io.to(remoteSocketId).emit("incomingCall", {
                 caller: localCaller,
-                callerSocketId: socket.id
-            })
+                callerId: callerId?.toString(),
+                type,
+            });
+            return;
         }
-    })
 
-    socket.on("outGoingVideoCall", async ({ caller, reciever }) => {
-        const remoteSocketId = userSocketMap[reciever]
-
-        if (remoteSocketId) {
-            const localCaller = await User.findById(caller)
-
-            io.to(remoteSocketId).emit("incomingVideoCall", {
-                caller: localCaller,
-                callerSocketId: socket.id
-            })
-        }
-    })
-
-    socket.on("callHasBeenCut", ({ receiver }) => {
-        const receiverSocketId = userSocketMap[receiver];
-
-        if (receiverSocketId) {
-            io.to(receiverSocketId).emit("callCutByCaller");
-        }
+        emitToUser(callerId, "callUnavailable", {
+            receiverId: normalizedReceiverId,
+            type,
+        });
     });
 
-    socket.on("callRejected", ({ callerId }) => {
-        const callSocketId = userSocketMap[callerId]
+    socket.on("callAcceptedByLocal", ({ to, type }) => {
+        emitToUser(to, "callAcceptedByRemote", {
+            from: normalizedUserId,
+            type,
+        });
+    });
 
-        if (callSocketId) {
-            io.to(callSocketId).emit("callRejectedByReciever");
-        }
-    })
+    socket.on("callRejectedByLocal", ({ to, type }) => {
+        emitToUser(to, "callRejectedByRemote", {
+            from: normalizedUserId,
+            type,
+        });
+    });
+
+    socket.on("callEndedByLocal", ({ to }) => {
+        emitToUser(to, "callEndedByRemote", {
+            from: normalizedUserId,
+        });
+    });
 
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
