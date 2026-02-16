@@ -17,9 +17,20 @@ function Video() {
     const mode = searchParams.get('mode');
     const [isConnected, setIsConnected] = useState(mode !== "outgoing");
 
+    useEffect(() => {
+        if (!socket?.connected) {
+            navigate('/');
+            return;
+        }
+    }, []);
+
     const stopMediaStream = useCallback(() => {
         const activeStream = streamRef.current;
         if (!activeStream) return;
+
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
+        }
 
         for (const track of activeStream.getTracks()) {
             track.stop();
@@ -48,9 +59,17 @@ function Video() {
 
     useEffect(() => {
         if (!id) return;
+        if (streamRef.current) return;
+
+        let cancelled = false;
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             .then((mediaStream) => {
+                if (cancelled) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                    return;
+                }
+
                 setStream(mediaStream);
                 streamRef.current = mediaStream;
                 if (videoRef.current) {
@@ -62,6 +81,7 @@ function Video() {
             });
 
         return () => {
+            cancelled = true
             stopMediaStream();
         };
     }, [id, stopMediaStream]);
@@ -107,14 +127,14 @@ function Video() {
     };
 
     return (
-        <div className='flex flex-col items-center justify-center h-screen bg-gray-900 text-white'>
+        <div className='w-full flex flex-col items-center justify-center h-screen bg-gray-900 text-white'>
             {!id && <div className='mb-4 text-red-300'>Missing call user.</div>}
-            <div className="relative w-72 h-72 md:w-96 md:h-96 mb-6 border-4 border-blue-500 rounded-lg overflow-hidden">
+            <div className="relative w-72 h-72 md:w-3/4 md:h-3/4 mb-6 border-4 border-blue-500 rounded-lg overflow-hidden">
                 <video
                     ref={videoRef}
                     autoPlay
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                 />
             </div>
             <div className="mb-4 text-sm text-gray-300">
