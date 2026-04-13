@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useAuthContext } from "./AuthContext";
 import io from "socket.io-client";
 import Call from '../components/alert/Call';
@@ -13,6 +13,7 @@ export const SocketContextProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [incomingCall, setIncomingCall] = useState(null);
+    const [pendingWebrtcSignals, setPendingWebrtcSignals] = useState([]);
     const { authUser } = useAuthContext();
 
     useEffect(() => {
@@ -42,6 +43,10 @@ export const SocketContextProvider = ({ children }) => {
                 setIncomingCall(null);
             });
 
+            socket.on("webrtcSignal", (signal) => {
+                setPendingWebrtcSignals((currentSignals) => [...currentSignals, signal]);
+            });
+
             return () => socket.close();
         } else {
             if (socket) {
@@ -50,6 +55,14 @@ export const SocketContextProvider = ({ children }) => {
             }
         }
     }, [authUser?._id]);
+
+    const clearPendingWebrtcSignals = useCallback((signalsToClear) => {
+        if (!Array.isArray(signalsToClear) || signalsToClear.length === 0) return;
+
+        setPendingWebrtcSignals((currentSignals) =>
+            currentSignals.filter((signal) => !signalsToClear.includes(signal))
+        );
+    }, []);
 
     const startVoiceCall = (remoteId) => {
         const localId = authUser._id;
@@ -107,9 +120,11 @@ export const SocketContextProvider = ({ children }) => {
             startVoiceCall,
             startVideoCall,
             incomingCall,
+            pendingWebrtcSignals,
             rejectCall,
             acceptCall,
-            clearIncomingCall
+            clearIncomingCall,
+            clearPendingWebrtcSignals
         }}>
             {children}
             <Call />

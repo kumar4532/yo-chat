@@ -86,6 +86,14 @@ io.on("connection", (socket) => {
         });
     });
 
+    socket.on("webrtcSignal", ({ to, sdp, type }) => {
+        emitToUser(to, "webrtcSignal", {
+            from: normalizedUserId,
+            sdp,
+            type,
+        });
+    });
+
     socket.on("disconnect", () => {
         console.log("user disconnected", socket.id);
         delete userSocketMap[normalizedUserId];
